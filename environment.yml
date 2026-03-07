@@ -1,4 +1,4 @@
-name: wikipeida-reversion
+name: flight-delays-recommender
 channels:
   - conda-forge
   - defaults
