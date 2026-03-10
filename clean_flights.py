@@ -1,9 +1,31 @@
 import pandas as pd
+import requests
+from time import sleep
+
+def download_file(url, destination_path):
+    # The raw URL of the file on GitHub
+    # Send a GET request to the URL
+    response = requests.get(url)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        
+        # Open the file in write-binary mode and save the content
+        with open(destination_path, 'wb') as f:
+            f.write(response.content)
+        print(f"File downloaded successfully to {destination_path}")
+    else:
+        print(f"Failed to download file. Status code: {response.status_code}")
+
+    sleep(1)
 
 #fix from https://github.com/lezandar/flights
 def clean(file):
 
     flights = pd.read_csv(file, low_memory=False)
+
+    download_file('https://raw.githubusercontent.com/lezandar/flights/refs/heads/master/L_AIRPORT_ID.csv', 'data/L_AIRPORT_ID.csv')
+    download_file('https://raw.githubusercontent.com/lezandar/flights/refs/heads/master/L_AIRPORT.csv', 'data/L_AIRPORT.csv')
 
     aircode1 = pd.read_csv('data/L_AIRPORT.csv')
     aircode2 = pd.read_csv('data/L_AIRPORT_ID.csv')
