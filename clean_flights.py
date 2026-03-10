@@ -1,37 +1,41 @@
 import pandas as pd
 
-flights = pd.read_csv("data/flights.csv", low_memory=False)
-
 #fix from https://github.com/lezandar/flights
-aircode1 = pd.read_csv('data/L_AIRPORT.csv')
-aircode2 = pd.read_csv('data/L_AIRPORT_ID.csv')
+def clean(file):
 
-# Format the airport codes
-aircode1 = aircode1.reset_index()
-aircode2 = aircode2.reset_index()
+    flights = pd.read_csv(file, low_memory=False)
 
-aircodes = pd.merge(aircode1,aircode2,on='Description')
-aircode_dict = dict(zip(aircodes['Code_y'].astype(str),aircodes['Code_x']))
+    aircode1 = pd.read_csv('data/L_AIRPORT.csv')
+    aircode2 = pd.read_csv('data/L_AIRPORT_ID.csv')
 
-# Make sure all Origin and departing airports are strings
-flights['ORIGIN_AIRPORT'] = flights['ORIGIN_AIRPORT'].values.astype(str)
-flights['DESTINATION_AIRPORT'] = flights['DESTINATION_AIRPORT'].values.astype(str)
+    # Format the airport codes
+    aircode1 = aircode1.reset_index()
+    aircode2 = aircode2.reset_index()
 
-for i in range(len(flights)):
-    if len(flights['ORIGIN_AIRPORT'][i]) != 3:
-        to_replace = flights['ORIGIN_AIRPORT'][i]
-        value = aircode_dict[flights['ORIGIN_AIRPORT'][i]]
-        flights = flights.replace(to_replace, value)
+    aircodes = pd.merge(aircode1,aircode2,on='Description')
+    aircode_dict = dict(zip(aircodes['Code_y'].astype(str),aircodes['Code_x']))
 
-for i in range(len(flights)):
-    if len(flights['DESTINATION_AIRPORT'][i]) != 3:
-        to_replace = flights['DESTINATION_AIRPORT'][i]
-        value = aircode_dict[flights['DESTINATION_AIRPORT'][i]]
-        flights = flights.replace(to_replace, value)
+    # Make sure all Origin and departing airports are strings
+    flights['ORIGIN_AIRPORT'] = flights['ORIGIN_AIRPORT'].values.astype(str)
+    flights['DESTINATION_AIRPORT'] = flights['DESTINATION_AIRPORT'].values.astype(str)
 
-flights_filtered_bsm = flights[
-    (flights['ORIGIN_AIRPORT'] != 'BSM') &
-    (flights['DESTINATION_AIRPORT'] != 'BSM')
-]
+    for i in range(len(flights)):
+        if len(flights['ORIGIN_AIRPORT'][i]) != 3:
+            to_replace = flights['ORIGIN_AIRPORT'][i]
+            value = aircode_dict[flights['ORIGIN_AIRPORT'][i]]
+            flights = flights.replace(to_replace, value)
 
-flights_filtered_bsm.to_csv('data/flights_filtered_fixed.csv', index=False)
+    for i in range(len(flights)):
+        if len(flights['DESTINATION_AIRPORT'][i]) != 3:
+            to_replace = flights['DESTINATION_AIRPORT'][i]
+            value = aircode_dict[flights['DESTINATION_AIRPORT'][i]]
+            flights = flights.replace(to_replace, value)
+
+    flights_filtered_bsm = flights[
+        (flights['ORIGIN_AIRPORT'] != 'BSM') &
+        (flights['DESTINATION_AIRPORT'] != 'BSM')
+    ]
+
+    flights_filtered_bsm.to_csv('data/flights_filtered_fixed.csv', index=False)
+
+    return
